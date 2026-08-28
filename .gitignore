@@ -1,0 +1,24 @@
+# Local editor settings
+.vscode/
+
+# Make and compiler outputs
+*.o
+*.a
+*.so
+dist/
+fs-tracker
+
+# CMake outputs
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+
+# Runtime data
+*.jsonl
+
+# Local and OS metadata
+.DS_Store
+*~
+core

@@ -2,6 +2,12 @@
 
 A small Linux file-activity sensor built on `fanotify`.
 
+## Documentation
+
+- [Configuration reference](docs/configuration.md)
+- [Event format](docs/event-format.md)
+- [Operations and troubleshooting](docs/operations.md)
+
 The project deliberately avoids wrapping `cat`, `cp`, editors, or other
 userspace utilities. Instead it listens at the Linux filesystem notification
 layer and enriches events with process metadata from `/proc`.
@@ -93,7 +99,7 @@ echo 'super secret' > /tmp/secret.txt
 Run the tracker:
 
 ```bash
-sudo ./fs-tracker \
+sudo ./dist/fs-tracker \
   --path /tmp/secret.txt \
   --log /tmp/fs-events.jsonl
 ```
@@ -131,13 +137,13 @@ Environment variables:
 sudo env \
   TRACK_PATH=/srv/honey/credentials.txt \
   TRACK_LOG=/var/log/fs-tracker/events.jsonl \
-  ./fs-tracker
+  ./dist/fs-tracker
 ```
 
 Simple config file:
 
 ```bash
-sudo ./fs-tracker --config examples/fs-tracker.conf
+sudo ./dist/fs-tracker --config examples/fs-tracker.conf
 ```
 
 Config syntax is intentionally just:
@@ -150,7 +156,7 @@ TRACK_LOG=/tmp/fs-events.jsonl
 CLI options may override values loaded earlier:
 
 ```bash
-sudo ./fs-tracker \
+sudo ./dist/fs-tracker \
   --config examples/fs-tracker.conf \
   --path /srv/honey/credentials.txt
 ```

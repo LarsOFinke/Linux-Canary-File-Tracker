@@ -1,6 +1,0 @@
-*.o
-dist/
-fs-tracker
-build/
-tests/test_event_names
-*.jsonl
