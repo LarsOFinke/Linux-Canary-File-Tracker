@@ -86,12 +86,16 @@ The installer optionally accepts an executable action file. It runs after each
 event is written and receives the event path, raw fanotify mask, and PID as its
 three positional arguments. Leave the prompt blank to disable it.
 
+Action tools belong in the root `tools/` directory. A basic HTTP POST action is
+provided at `tools/canary-curl-post.sh`; enter that path at the installer prompt
+and set `FS_TRACKER_POST_URL` in the service environment.
+
 The installer prompts for a canary name. For example, naming two installations
 `finance` and `engineering` creates separate units and configs:
 
 ```text
-fs-tracker-finance.service       /etc/fs-tracker/finance.conf
-fs-tracker-engineering.service  /etc/fs-tracker/engineering.conf
+fs-file-monitor-finance.service       /etc/fs-tracker/finance.conf
+fs-file-monitor-engineering.service  /etc/fs-tracker/engineering.conf
 ```
 
 Canary names may contain letters, digits, underscores, and hyphens. The name
@@ -120,8 +124,8 @@ deactivation script stops and disables the selected unit while retaining the
 unit file and data. Check a canary with:
 
 ```bash
-systemctl status fs-tracker-finance.service
-journalctl -u fs-tracker-finance.service -f
+systemctl status fs-file-monitor-finance.service
+journalctl -u fs-file-monitor-finance.service -f
 ```
 
 ## Quick start

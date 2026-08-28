@@ -20,7 +20,7 @@ require_interactive
 printf 'fs-tracker interactive setup\n\n'
 prompt_new_canary_name
 
-SERVICE_NAME="fs-tracker-$CANARY_NAME.service"
+SERVICE_NAME="fs-file-monitor-$CANARY_NAME.service"
 CONFIG_FILE="$CONFIG_DIR/$CANARY_NAME.conf"
 SERVICE_FILE="$SERVICE_DIR/$SERVICE_NAME"
 
@@ -91,7 +91,7 @@ chmod 0644 "$CONFIG_FILE"
 
 cat > "$SERVICE_FILE" <<EOF
 [Unit]
-Description=Minimal fanotify file activity tracker
+Description=File activity monitor ($CANARY_NAME)
 After=local-fs.target
 
 [Service]

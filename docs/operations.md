@@ -55,7 +55,7 @@ The installer builds and tests the program, installs the binary under
 `/usr/local/bin`, creates the configured target if necessary, and enables the
 provided canary service. It prompts for a canary name and stores its config as
 `/etc/fs-tracker/<name>.conf`. Each canary gets a separate unit named
-`fs-tracker-<name>.service`, so multiple targets can run independently. Useful
+`fs-file-monitor-<name>.service`, so multiple targets can run independently. Useful
 service commands are:
 
 The installer also maintains `/etc/fs-tracker/canaries`, a tab-separated
@@ -64,9 +64,9 @@ Activation and deactivation display this registry as a numbered list, so the
 operator selects an existing canary instead of retyping its service name.
 
 ```bash
-systemctl status fs-tracker-finance.service
-journalctl -u fs-tracker-finance.service -f
-systemctl restart fs-tracker-finance.service
+systemctl status fs-file-monitor-finance.service
+journalctl -u fs-file-monitor-finance.service -f
+systemctl restart fs-file-monitor-finance.service
 ```
 
 To stop and disable the service while retaining its generated unit file:
@@ -89,6 +89,10 @@ data.
 Each service reads its matching `/etc/fs-tracker/<name>.conf`. Confirm its
 paths and permissions before starting it, especially when the log is under
 `/var/log`.
+
+Action tools are kept in the root `tools/` directory. To use the basic curl
+action, enter `/absolute/path/to/tools/canary-curl-post.sh` at installation and
+set `FS_TRACKER_POST_URL` with a systemd environment override for that canary.
 
 ## Common failures
 

@@ -54,3 +54,26 @@ The action must be executable and should finish promptly because the listener
 waits for it before processing the next event. A non-zero exit status is
 reported to stderr but does not stop event monitoring. The action is executed
 directly, without a shell.
+
+## Basic HTTP action
+
+The repository includes `tools/canary-curl-post.sh`. It posts the three action
+arguments as URL-encoded form fields named `event_path`, `event_mask`, and
+`event_pid`. Configure it by setting `FS_TRACKER_POST_URL` in the service
+environment, then choose the tool's absolute path at installation time.
+
+For a generated canary unit, add an environment override and restart that
+canary:
+
+```bash
+sudo systemctl edit fs-file-monitor-finance.service
+```
+
+```ini
+[Service]
+Environment="FS_TRACKER_POST_URL=https://collector.example/events"
+Environment="FS_TRACKER_POST_TIMEOUT=10"
+```
+
+The action requires `curl`. The default timeout is 10 seconds; a failed POST
+is reported by `fs-tracker` and does not stop event monitoring.

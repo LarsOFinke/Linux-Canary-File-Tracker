@@ -6,7 +6,7 @@ named systemd units.
 
 The installer prompts for a canary name and stores its configuration at
 `/etc/fs-tracker/<name>.conf`. Its systemd unit is named
-`fs-tracker-<name>.service`. The installer maintains a tab-separated lookup
+`fs-file-monitor-<name>.service`. The installer maintains a tab-separated lookup
 table at `/etc/fs-tracker/canaries` with the name, unit, config, target, log,
 and action for each installation.
 

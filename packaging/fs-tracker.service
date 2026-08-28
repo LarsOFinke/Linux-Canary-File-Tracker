@@ -1,5 +1,5 @@
 [Unit]
-Description=fs-tracker canary example
+Description=File activity monitor example
 After=local-fs.target
 
 [Service]
