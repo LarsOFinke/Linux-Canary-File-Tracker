@@ -1,4 +1,5 @@
 #include "config.h"
+#include "action.h"
 #include "event.h"
 #include "fanotify_source.h"
 #include "jsonl_sink.h"
@@ -64,6 +65,12 @@ int main(int argc, char **argv)
                              parent.pid > 0 ? &parent : NULL) < 0) {
             fprintf(stderr, "failed to write JSONL log\n");
             break;
+        }
+
+        if (config.action_path[0]) {
+            char action_err[512] = {0};
+            if (action_run(config.action_path, &event, action_err, sizeof(action_err)) < 0)
+                fprintf(stderr, "%s\n", action_err);
         }
     }
 

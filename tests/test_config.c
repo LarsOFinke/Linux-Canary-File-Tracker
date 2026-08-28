@@ -15,7 +15,7 @@ int main(void)
 
     FILE *file = fdopen(fd, "w");
     assert(file != NULL);
-    fputs("TRACK_PATH=/from-config\nTRACK_LOG=/config-log.jsonl\n", file);
+    fputs("TRACK_PATH=/from-config\nTRACK_LOG=/config-log.jsonl\nTRACK_ACTION=/config-action\n", file);
     fclose(file);
 
     assert(setenv("TRACK_PATH", "/from-env", 1) == 0);
@@ -35,6 +35,7 @@ int main(void)
     assert(result == 0);
     assert(strcmp(config.target_path, "/from-cli") == 0);
     assert(strcmp(config.log_path, "/env-log.jsonl") == 0);
+    assert(strcmp(config.action_path, "/config-action") == 0);
 
     unsetenv("TRACK_PATH");
     unsetenv("TRACK_LOG");

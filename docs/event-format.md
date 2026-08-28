@@ -43,3 +43,14 @@ The sensor can emit:
 Consumers should tolerate additional fields and event names in future
 versions, and should parse each line independently so one malformed or partial
 record does not require discarding the entire file.
+
+## Executable action
+
+When `TRACK_ACTION` is configured, the tracker executes that file after the
+JSONL record is written. It passes three positional arguments: the event path,
+the raw fanotify mask, and the originating PID (or `0` when unavailable).
+
+The action must be executable and should finish promptly because the listener
+waits for it before processing the next event. A non-zero exit status is
+reported to stderr but does not stop event monitoring. The action is executed
+directly, without a shell.

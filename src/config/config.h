@@ -7,6 +7,7 @@
 typedef struct {
     char target_path[PATH_MAX];
     char log_path[PATH_MAX];
+    char action_path[PATH_MAX];
 } TrackerConfig;
 
 /*

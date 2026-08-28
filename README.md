@@ -69,6 +69,10 @@ cmake --build build
 ctest --test-dir build
 ```
 
+The Make build produces one runnable distribution file: `dist/fs-tracker`.
+`make test` keeps its test binaries in a temporary directory and removes them
+afterward. Only this executable is needed to run the tracker.
+
 ## Install as a service
 
 The tracker is a long-running fanotify listener, so use the provided installer
@@ -77,6 +81,10 @@ and systemd service rather than cron:
 ```bash
 sudo scripts/install-fs-tracker.sh
 ```
+
+The installer optionally accepts an executable action file. It runs after each
+event is written and receives the event path, raw fanotify mask, and PID as its
+three positional arguments. Leave the prompt blank to disable it.
 
 The installer prompts for a canary name. For example, naming two installations
 `finance` and `engineering` creates separate units and configs:

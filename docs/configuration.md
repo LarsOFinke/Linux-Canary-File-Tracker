@@ -7,8 +7,8 @@ named systemd units.
 The installer prompts for a canary name and stores its configuration at
 `/etc/fs-tracker/<name>.conf`. Its systemd unit is named
 `fs-tracker-<name>.service`. The installer maintains a tab-separated lookup
-table at `/etc/fs-tracker/canaries` with the name, unit, config, target, and log
-for each installation.
+table at `/etc/fs-tracker/canaries` with the name, unit, config, target, log,
+and action for each installation.
 
 ## Settings
 
@@ -16,6 +16,7 @@ for each installation.
 | --- | --- | --- |
 | `TRACK_PATH` | `/tmp/secret.txt` | File to mark and monitor. It must exist when the process starts. |
 | `TRACK_LOG` | `./fs-events.jsonl` | JSONL file to append events to. |
+| `TRACK_ACTION` | unset | Optional executable to run after an event is logged. |
 
 Settings can be supplied through a config file containing simple `KEY=VALUE`
 lines:
@@ -23,7 +24,12 @@ lines:
 ```text
 TRACK_PATH=/srv/honey/credentials.txt
 TRACK_LOG=/var/log/fs-tracker/events.jsonl
+TRACK_ACTION=/usr/local/libexec/fs-tracker-action
 ```
+
+The repository includes [packaging/fs-tracker-action.sh](../packaging/fs-tracker-action.sh)
+as a minimal example. Copy it to a suitable system path, make it executable,
+and enter that absolute path at the install prompt.
 
 Blank lines and lines beginning with `#` are ignored. Values are not shell
 expanded, so use absolute paths when running as a service.

@@ -8,6 +8,7 @@ REGISTRY_FILE=${REGISTRY_FILE:-$CONFIG_DIR/canaries}
 CANARY_NAME=${CANARY_NAME:-default}
 TARGET_PATH=/srv/honey/credentials.txt
 LOG_PATH=/var/log/fs-tracker/events.jsonl
+ACTION_PATH=
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/canary-registry.sh"
@@ -36,9 +37,14 @@ printf 'JSONL log file [%s]: ' "$LOG_PATH"
 IFS= read -r input
 [ -n "$input" ] && LOG_PATH=$input
 
-case "$TARGET_PATH:$LOG_PATH" in
-    /*:/*) ;;
-    *) fail "target and log paths must be absolute" ;;
+printf 'Executable action file [none]: '
+IFS= read -r input
+[ -n "$input" ] && ACTION_PATH=$input
+
+case "$TARGET_PATH:$LOG_PATH:$ACTION_PATH" in
+    /*:/*:) ;;
+    /*:/*:/*) [ -x "$ACTION_PATH" ] || fail "action file must be executable" ;;
+    *) fail "target and log paths must be absolute; action must be an executable absolute path" ;;
 esac
 
 [ ! -e "$TARGET_PATH" ] || [ ! -d "$TARGET_PATH" ] || fail "target path must be a file"
@@ -78,6 +84,9 @@ cat > "$CONFIG_FILE" <<EOF
 TRACK_PATH=$TARGET_PATH
 TRACK_LOG=$LOG_PATH
 EOF
+if [ -n "$ACTION_PATH" ]; then
+    printf 'TRACK_ACTION=%s\n' "$ACTION_PATH" >> "$CONFIG_FILE"
+fi
 chmod 0644 "$CONFIG_FILE"
 
 cat > "$SERVICE_FILE" <<EOF

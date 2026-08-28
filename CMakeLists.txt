@@ -6,6 +6,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
 add_library(fstracker_core
+    src/actions/action.c
     src/config/config.c
     src/events/event_names.c
     src/monitoring/fanotify_source.c
@@ -13,6 +14,7 @@ add_library(fstracker_core
     src/process/proc_info.c
 )
 target_include_directories(fstracker_core PRIVATE
+    src/actions
     src/config
     src/events
     src/monitoring
@@ -23,7 +25,11 @@ target_compile_options(fstracker_core PRIVATE -Wall -Wextra -Wpedantic)
 
 add_executable(fs-tracker src/app/main.c)
 target_link_libraries(fs-tracker PRIVATE fstracker_core)
+set_target_properties(fs-tracker PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/dist"
+)
 target_include_directories(fs-tracker PRIVATE
+    src/actions
     src/config
     src/events
     src/monitoring

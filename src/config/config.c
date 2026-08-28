@@ -37,6 +37,7 @@ static void load_defaults(TrackerConfig *config)
 {
     strcpy(config->target_path, "/tmp/secret.txt");
     strcpy(config->log_path, "./fs-events.jsonl");
+    config->action_path[0] = '\0';
 }
 
 static int load_file(TrackerConfig *config, const char *path, char *err, size_t err_size)
@@ -78,6 +79,11 @@ static int load_file(TrackerConfig *config, const char *path, char *err, size_t 
                 fclose(file);
                 return -1;
             }
+        } else if (strcmp(key, "TRACK_ACTION") == 0) {
+            if (copy_value(config->action_path, sizeof(config->action_path), value, key, err, err_size) < 0) {
+                fclose(file);
+                return -1;
+            }
         } else {
             snprintf(err, err_size, "unknown config key '%s' on line %u", key, line_no);
             fclose(file);
@@ -101,7 +107,8 @@ static int validate_args(int argc, char **argv, char *err, size_t err_size)
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
             return 1;
 
-        if (strcmp(argv[i], "--config") == 0 || strcmp(argv[i], "--path") == 0 || strcmp(argv[i], "--log") == 0) {
+        if (strcmp(argv[i], "--config") == 0 || strcmp(argv[i], "--path") == 0 ||
+            strcmp(argv[i], "--log") == 0 || strcmp(argv[i], "--action") == 0) {
             if (i + 1 >= argc) {
                 snprintf(err, err_size, "%s requires a value", argv[i]);
                 return -1;
@@ -123,7 +130,8 @@ static int load_config_files(TrackerConfig *config, int argc, char **argv, char 
         if (strcmp(argv[i], "--config") == 0) {
             if (load_file(config, argv[++i], err, err_size) < 0)
                 return -1;
-        } else if (strcmp(argv[i], "--path") == 0 || strcmp(argv[i], "--log") == 0) {
+        } else if (strcmp(argv[i], "--path") == 0 || strcmp(argv[i], "--log") == 0 ||
+               strcmp(argv[i], "--action") == 0) {
             i++;
         }
     }
@@ -134,11 +142,15 @@ static int load_env(TrackerConfig *config, char *err, size_t err_size)
 {
     const char *target = getenv("TRACK_PATH");
     const char *log = getenv("TRACK_LOG");
+    const char *action = getenv("TRACK_ACTION");
 
     if (target && copy_value(config->target_path, sizeof(config->target_path), target, "TRACK_PATH", err, err_size) < 0)
         return -1;
 
     if (log && copy_value(config->log_path, sizeof(config->log_path), log, "TRACK_LOG", err, err_size) < 0)
+        return -1;
+
+    if (action && copy_value(config->action_path, sizeof(config->action_path), action, "TRACK_ACTION", err, err_size) < 0)
         return -1;
 
     return 0;
@@ -154,6 +166,9 @@ static int load_cli_overrides(TrackerConfig *config, int argc, char **argv, char
                 return -1;
         } else if (strcmp(argv[i], "--log") == 0) {
             if (copy_value(config->log_path, sizeof(config->log_path), argv[++i], "--log", err, err_size) < 0)
+                return -1;
+        } else if (strcmp(argv[i], "--action") == 0) {
+            if (copy_value(config->action_path, sizeof(config->action_path), argv[++i], "--action", err, err_size) < 0)
                 return -1;
         }
     }
@@ -189,9 +204,9 @@ int tracker_config_load(TrackerConfig *config, int argc, char **argv, char *err,
 void tracker_config_print_usage(const char *program_name)
 {
     fprintf(stderr,
-            "Usage: %s [--config FILE] [--path FILE] [--log FILE]\n"
+            "Usage: %s [--config FILE] [--path FILE] [--log FILE] [--action FILE]\n"
             "\n"
             "Precedence: defaults < config file < environment < CLI overrides.\n"
-            "Environment: TRACK_PATH, TRACK_LOG\n",
+            "Environment: TRACK_PATH, TRACK_LOG, TRACK_ACTION\n",
             program_name);
 }

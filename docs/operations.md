@@ -17,6 +17,11 @@ cmake --build build
 ctest --test-dir build
 ```
 
+The Make workflow leaves only `dist/fs-tracker` as its distribution artifact;
+test binaries are temporary. Use that executable to run the tracker. A CMake
+build directory necessarily contains CMake metadata and intermediate files;
+those are build internals and are not needed at runtime.
+
 ## Run manually
 
 The watched file must exist before startup:
