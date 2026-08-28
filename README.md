@@ -4,6 +4,7 @@ A small Linux file-activity sensor built on `fanotify`.
 
 ## Documentation
 
+- [User guide](docs/user-guide.md)
 - [Configuration reference](docs/configuration.md)
 - [Event format](docs/event-format.md)
 - [Operations and troubleshooting](docs/operations.md)

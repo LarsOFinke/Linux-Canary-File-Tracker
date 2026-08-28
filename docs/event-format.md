@@ -14,10 +14,17 @@ opened in append mode, so existing records are retained across restarts.
 | `process` | object | Best-effort metadata for the event PID |
 | `parent` | object | Best-effort metadata for the immediate parent PID |
 
-Process objects contain `pid`, `ppid`, `uid`, `exe`, and `cmdline`. The process
-and parent objects may be absent or contain empty strings if the process exits
-before `/proc` can be read. Treat these fields as context, not as a trusted
-identity.
+Process objects contain `pid`, `ppid`, `uid`, `euid`, `gid`, `egid`, `session_id`,
+`tty_nr`, `start_time`, `exe`, `comm`, `cmdline`, `cwd`, and `root`. These
+fields reflect the local Linux process context visible under `/proc` at the time
+of the event. The process and parent objects may be absent or contain empty
+strings if the process exits before `/proc` can be read. Treat these fields as
+best-effort evidence, not as a trusted identity.
+
+This project does not have access to remote socket peer IPs or client addresses
+for a file event. `fanotify` reports filesystem access by local process, not the
+network origin of a connection. A real `origin_ip` field would require a higher
+layer such as application logging, eBPF socket tracing, or packet capture.
 
 ## Event names
 

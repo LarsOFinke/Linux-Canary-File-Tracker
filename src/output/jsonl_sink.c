@@ -74,10 +74,46 @@ static void write_process(FILE *out, const ProcessInfo *info)
         fputs("null", out);
     else
         fprintf(out, "%u", (unsigned)info->uid);
+    fputs(",\"euid\":", out);
+    if (info->euid == (uid_t)-1)
+        fputs("null", out);
+    else
+        fprintf(out, "%u", (unsigned)info->euid);
+    fputs(",\"gid\":", out);
+    if (info->gid == (gid_t)-1)
+        fputs("null", out);
+    else
+        fprintf(out, "%u", (unsigned)info->gid);
+    fputs(",\"egid\":", out);
+    if (info->egid == (gid_t)-1)
+        fputs("null", out);
+    else
+        fprintf(out, "%u", (unsigned)info->egid);
+    fputs(",\"session_id\":", out);
+    if (info->session_id < 0)
+        fputs("null", out);
+    else
+        fprintf(out, "%d", info->session_id);
+    fputs(",\"tty_nr\":", out);
+    if (info->tty_nr < 0)
+        fputs("null", out);
+    else
+        fprintf(out, "%d", info->tty_nr);
+    fputs(",\"start_time\":", out);
+    if (info->start_time < 0)
+        fputs("null", out);
+    else
+        fprintf(out, "%ld", info->start_time);
     fputs(",\"exe\":", out);
     write_json_string(out, info->exe);
+    fputs(",\"comm\":", out);
+    write_json_string(out, info->comm);
     fputs(",\"cmdline\":", out);
     write_json_string(out, info->cmdline);
+    fputs(",\"cwd\":", out);
+    write_json_string(out, info->cwd);
+    fputs(",\"root\":", out);
+    write_json_string(out, info->root);
     fputc('}', out);
 }
 
