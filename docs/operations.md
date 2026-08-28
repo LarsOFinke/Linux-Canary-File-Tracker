@@ -54,6 +54,23 @@ journalctl -u fs-tracker.service -f
 systemctl restart fs-tracker.service
 ```
 
+To stop and disable the service while retaining its generated unit file:
+
+```bash
+sudo scripts/deactivate-fs-tracker.sh
+```
+
+Deactivation retains the systemd unit, `/usr/local/bin/fs-tracker`,
+`/etc/fs-tracker.conf`, the watched target, and the JSONL log. Enable and start
+the service again with:
+
+```bash
+sudo scripts/activate-fs-tracker.sh
+```
+
+This makes it possible to inspect existing events or reactivate without losing
+data.
+
 The service reads `/etc/fs-tracker.conf`. Confirm its paths and permissions
 before starting it, especially when the log is under `/var/log`.
 

@@ -78,10 +78,24 @@ and systemd service rather than cron:
 sudo scripts/install-fs-tracker.sh
 ```
 
+To stop and disable the service while retaining the installed binary,
+configuration, target, and event log:
+
+```bash
+sudo scripts/deactivate-fs-tracker.sh
+```
+
+To enable and start it again:
+
+```bash
+sudo scripts/activate-fs-tracker.sh
+```
+
 The script interactively asks for the target and log paths, using sensible
 defaults. It builds and tests the program, installs it under `/usr/local/bin`,
 creates the target file if needed, writes `/etc/fs-tracker.conf`, and enables
-the service. Check it with:
+the service. The deactivation script stops and disables the unit while
+retaining the systemd unit file and data. Check the service with:
 
 ```bash
 systemctl status fs-tracker.service
