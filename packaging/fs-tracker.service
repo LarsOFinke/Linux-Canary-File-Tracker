@@ -1,10 +1,10 @@
 [Unit]
-Description=Minimal fanotify file activity tracker
+Description=fs-tracker canary example
 After=local-fs.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/fs-tracker --config /etc/fs-tracker.conf
+ExecStart=/usr/local/bin/fs-tracker --config /etc/fs-tracker/example.conf
 Restart=on-failure
 # Start simple. Tighten capabilities/sandboxing after validating the exact
 # requirements on your kernel and deployment.

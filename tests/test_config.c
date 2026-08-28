@@ -1,5 +1,5 @@
 #define _GNU_SOURCE
-#include "fstracker/config.h"
+#include "config.h"
 
 #include <assert.h>
 #include <stdio.h>

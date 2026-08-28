@@ -1,5 +1,5 @@
 #define _GNU_SOURCE
-#include "fstracker/fanotify_source.h"
+#include "fanotify_source.h"
 
 #include <errno.h>
 #include <fcntl.h>

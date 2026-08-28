@@ -1,7 +1,7 @@
 #ifndef FSTRACKER_FANOTIFY_SOURCE_H
 #define FSTRACKER_FANOTIFY_SOURCE_H
 
-#include "fstracker/event.h"
+#include "event.h"
 
 #include <stddef.h>
 #include <stdint.h>

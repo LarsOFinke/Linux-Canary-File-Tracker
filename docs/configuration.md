@@ -1,7 +1,14 @@
 # Configuration reference
 
-`fs-tracker` watches one existing target path and appends events to one JSONL
-log file.
+Each canary installation watches one existing target path and appends events to
+one JSONL log file. The shared binary can run under multiple independently
+named systemd units.
+
+The installer prompts for a canary name and stores its configuration at
+`/etc/fs-tracker/<name>.conf`. Its systemd unit is named
+`fs-tracker-<name>.service`. The installer maintains a tab-separated lookup
+table at `/etc/fs-tracker/canaries` with the name, unit, config, target, and log
+for each installation.
 
 ## Settings
 
@@ -35,8 +42,8 @@ For example, this keeps the config file for the log destination while changing
 the watched file:
 
 ```bash
-sudo ./fs-tracker \
-  --config examples/fs-tracker.conf \
+sudo ./dist/fs-tracker \
+  --config packaging/fs-tracker.conf \
   --path /srv/honey/credentials.txt
 ```
 

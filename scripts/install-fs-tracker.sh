@@ -2,25 +2,32 @@
 set -eu
 
 PREFIX=${PREFIX:-/usr/local}
-CONFIG_FILE=${CONFIG_FILE:-/etc/fs-tracker.conf}
-SERVICE_FILE=${SERVICE_FILE:-/etc/systemd/system/fs-tracker.service}
+CONFIG_DIR=${CONFIG_DIR:-/etc/fs-tracker}
+SERVICE_DIR=${SERVICE_DIR:-/etc/systemd/system}
+REGISTRY_FILE=${REGISTRY_FILE:-$CONFIG_DIR/canaries}
+CANARY_NAME=${CANARY_NAME:-default}
 TARGET_PATH=/srv/honey/credentials.txt
 LOG_PATH=/var/log/fs-tracker/events.jsonl
 
-fail() {
-    printf 'error: %s\n' "$1" >&2
-    exit 1
-}
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+. "$SCRIPT_DIR/canary-registry.sh"
 
-case "$(id -u)" in
-    0) ;;
-    *) fail "run this script as root, for example: sudo $0" ;;
-esac
-
-[ "$#" -eq 0 ] || fail "this installer is interactive; do not pass arguments"
-[ -t 0 ] || fail "interactive terminal input is required"
+require_root
+require_no_arguments "$@"
+require_interactive
 
 printf 'fs-tracker interactive setup\n\n'
+prompt_new_canary_name
+
+SERVICE_NAME="fs-tracker-$CANARY_NAME.service"
+CONFIG_FILE="$CONFIG_DIR/$CANARY_NAME.conf"
+SERVICE_FILE="$SERVICE_DIR/$SERVICE_NAME"
+
+[ ! -e "$SERVICE_FILE" ] || fail "$SERVICE_FILE already exists; choose another canary name or deactivate it first"
+[ ! -e "$CONFIG_FILE" ] || fail "$CONFIG_FILE already exists; choose another canary name or deactivate it first"
+[ ! -e "$REGISTRY_FILE" ] || ! registry_contains "$CANARY_NAME" || fail "canary '$CANARY_NAME' is already registered; choose another name"
+
+printf 'Service: %s\n' "$SERVICE_NAME"
 printf 'Target file [%s]: ' "$TARGET_PATH"
 IFS= read -r input
 [ -n "$input" ] && TARGET_PATH=$input
@@ -45,7 +52,6 @@ case "$answer" in
     *) printf 'Installation cancelled.\n'; exit 0 ;;
 esac
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 PROJECT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 BINARY="$PROJECT_DIR/dist/fs-tracker"
 
@@ -59,6 +65,7 @@ install -m 0755 "$BINARY" "$PREFIX/bin/fs-tracker"
 
 TARGET_DIR=$(dirname -- "$TARGET_PATH")
 LOG_DIR=$(dirname -- "$LOG_PATH")
+install -d -m 0750 "$CONFIG_DIR"
 install -d -m 0750 "$TARGET_DIR"
 install -d -m 0750 "$LOG_DIR"
 
@@ -89,10 +96,12 @@ EOF
 chmod 0644 "$SERVICE_FILE"
 
 systemctl daemon-reload
-systemctl enable --now fs-tracker.service
+systemctl enable --now "$SERVICE_NAME"
+registry_add
 
 printf '\nfs-tracker is active.\n'
+printf 'Service: %s\n' "$SERVICE_NAME"
 printf 'Target: %s\n' "$TARGET_PATH"
 printf 'Log:    %s\n' "$LOG_PATH"
-printf 'Status: systemctl status fs-tracker.service\n'
-printf 'Events: journalctl -u fs-tracker.service -f\n'
+printf 'Status: systemctl status %s\n' "$SERVICE_NAME"
+printf 'Events: journalctl -u %s -f\n' "$SERVICE_NAME"

@@ -1,4 +1,4 @@
-#include "fstracker/event_names.h"
+#include "event_names.h"
 
 #include <assert.h>
 #include <string.h>

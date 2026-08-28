@@ -1,5 +1,5 @@
 #define _GNU_SOURCE
-#include "fstracker/jsonl_sink.h"
+#include "jsonl_sink.h"
 
 #include <assert.h>
 #include <stdio.h>

@@ -1,6 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
-#include "fstracker/jsonl_sink.h"
-#include "fstracker/event_names.h"
+#include "jsonl_sink.h"
+#include "event_names.h"
 
 #include <errno.h>
 #include <stdint.h>

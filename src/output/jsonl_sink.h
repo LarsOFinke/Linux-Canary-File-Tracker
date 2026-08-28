@@ -1,8 +1,8 @@
 #ifndef FSTRACKER_JSONL_SINK_H
 #define FSTRACKER_JSONL_SINK_H
 
-#include "fstracker/event.h"
-#include "fstracker/proc_info.h"
+#include "event.h"
+#include "proc_info.h"
 
 #include <stddef.h>
 #include <stdio.h>

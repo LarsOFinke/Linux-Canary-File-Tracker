@@ -37,12 +37,12 @@ Each event is written as one JSON object per line (JSONL), together with:
 The code is intentionally split by responsibility rather than by framework:
 
 ```text
-src/main.c             orchestration only
-src/config.c           defaults, env, config-file and CLI parsing
-src/fanotify_source.c  Linux fanotify interaction
-src/proc_info.c        /proc process enrichment
-src/jsonl_sink.c       JSONL serialization/output
-src/event_names.c      fanotify mask -> stable event names
+src/app/main.c                    orchestration only
+src/config/config.c               defaults, env, config-file and CLI parsing
+src/monitoring/fanotify_source.c  Linux fanotify interaction
+src/process/proc_info.c           /proc process enrichment
+src/output/jsonl_sink.c           JSONL serialization/output
+src/events/event_names.c          fanotify mask -> stable event names
 ```
 
 This keeps the design KISS while applying the useful parts of SOLID in C:
@@ -78,6 +78,19 @@ and systemd service rather than cron:
 sudo scripts/install-fs-tracker.sh
 ```
 
+The installer prompts for a canary name. For example, naming two installations
+`finance` and `engineering` creates separate units and configs:
+
+```text
+fs-tracker-finance.service       /etc/fs-tracker/finance.conf
+fs-tracker-engineering.service  /etc/fs-tracker/engineering.conf
+```
+
+Canary names may contain letters, digits, underscores, and hyphens. The name
+is used by the activate and deactivate scripts to select the matching unit.
+The installer keeps these mappings in `/etc/fs-tracker/canaries`; the lifecycle
+scripts show registered canaries as a numbered list.
+
 To stop and disable the service while retaining the installed binary,
 configuration, target, and event log:
 
@@ -91,15 +104,16 @@ To enable and start it again:
 sudo scripts/activate-fs-tracker.sh
 ```
 
-The script interactively asks for the target and log paths, using sensible
-defaults. It builds and tests the program, installs it under `/usr/local/bin`,
-creates the target file if needed, writes `/etc/fs-tracker.conf`, and enables
-the service. The deactivation script stops and disables the unit while
-retaining the systemd unit file and data. Check the service with:
+The script interactively asks for the canary name, target, and log paths, using
+sensible defaults. It builds and tests the program, installs the shared binary
+under `/usr/local/bin`, creates the target file if needed, writes the named
+config under `/etc/fs-tracker/`, and enables that canary's service. The
+deactivation script stops and disables the selected unit while retaining the
+unit file and data. Check a canary with:
 
 ```bash
-systemctl status fs-tracker.service
-journalctl -u fs-tracker.service -f
+systemctl status fs-tracker-finance.service
+journalctl -u fs-tracker-finance.service -f
 ```
 
 ## Quick start
@@ -157,7 +171,7 @@ sudo env \
 Simple config file:
 
 ```bash
-sudo ./dist/fs-tracker --config examples/fs-tracker.conf
+sudo ./dist/fs-tracker --config packaging/fs-tracker.conf
 ```
 
 Config syntax is intentionally just:
@@ -171,7 +185,7 @@ CLI options may override values loaded earlier:
 
 ```bash
 sudo ./dist/fs-tracker \
-  --config examples/fs-tracker.conf \
+  --config packaging/fs-tracker.conf \
   --path /srv/honey/credentials.txt
 ```
 

@@ -38,7 +38,9 @@ tail -n 1 /tmp/fs-events.jsonl
 
 ## Install with systemd
 
-Use the installer from the repository root:
+Use the installer from the repository root. The `packaging/` directory contains
+reference configuration and systemd unit templates; the installer generates
+the per-canary files under `/etc/fs-tracker/` and `/etc/systemd/system/`.
 
 ```bash
 sudo scripts/install-fs-tracker.sh
@@ -46,12 +48,20 @@ sudo scripts/install-fs-tracker.sh
 
 The installer builds and tests the program, installs the binary under
 `/usr/local/bin`, creates the configured target if necessary, and enables the
-provided service. Useful service commands are:
+provided canary service. It prompts for a canary name and stores its config as
+`/etc/fs-tracker/<name>.conf`. Each canary gets a separate unit named
+`fs-tracker-<name>.service`, so multiple targets can run independently. Useful
+service commands are:
+
+The installer also maintains `/etc/fs-tracker/canaries`, a tab-separated
+registry containing each canary's name, unit, config, target, and log paths.
+Activation and deactivation display this registry as a numbered list, so the
+operator selects an existing canary instead of retyping its service name.
 
 ```bash
-systemctl status fs-tracker.service
-journalctl -u fs-tracker.service -f
-systemctl restart fs-tracker.service
+systemctl status fs-tracker-finance.service
+journalctl -u fs-tracker-finance.service -f
+systemctl restart fs-tracker-finance.service
 ```
 
 To stop and disable the service while retaining its generated unit file:
@@ -60,9 +70,9 @@ To stop and disable the service while retaining its generated unit file:
 sudo scripts/deactivate-fs-tracker.sh
 ```
 
-Deactivation retains the systemd unit, `/usr/local/bin/fs-tracker`,
-`/etc/fs-tracker.conf`, the watched target, and the JSONL log. Enable and start
-the service again with:
+Deactivation prompts for the canary name and retains its systemd unit,
+`/usr/local/bin/fs-tracker`, `/etc/fs-tracker/<name>.conf`, watched target, and
+JSONL log. Enable and start the selected service again with:
 
 ```bash
 sudo scripts/activate-fs-tracker.sh
@@ -71,8 +81,9 @@ sudo scripts/activate-fs-tracker.sh
 This makes it possible to inspect existing events or reactivate without losing
 data.
 
-The service reads `/etc/fs-tracker.conf`. Confirm its paths and permissions
-before starting it, especially when the log is under `/var/log`.
+Each service reads its matching `/etc/fs-tracker/<name>.conf`. Confirm its
+paths and permissions before starting it, especially when the log is under
+`/var/log`.
 
 ## Common failures
 

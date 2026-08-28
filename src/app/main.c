@@ -1,8 +1,8 @@
-#include "fstracker/config.h"
-#include "fstracker/event.h"
-#include "fstracker/fanotify_source.h"
-#include "fstracker/jsonl_sink.h"
-#include "fstracker/proc_info.h"
+#include "config.h"
+#include "event.h"
+#include "fanotify_source.h"
+#include "jsonl_sink.h"
+#include "proc_info.h"
 
 #include <stdio.h>
 #include <string.h>

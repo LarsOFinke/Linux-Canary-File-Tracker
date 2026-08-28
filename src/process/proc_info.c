@@ -1,5 +1,5 @@
 #define _GNU_SOURCE
-#include "fstracker/proc_info.h"
+#include "proc_info.h"
 
 #include <fcntl.h>
 #include <stdio.h>
