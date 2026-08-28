@@ -1,0 +1,13 @@
+[Unit]
+Description=Minimal fanotify file activity tracker
+After=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/fs-tracker --config /etc/fs-tracker.conf
+Restart=on-failure
+# Start simple. Tighten capabilities/sandboxing after validating the exact
+# requirements on your kernel and deployment.
+
+[Install]
+WantedBy=multi-user.target

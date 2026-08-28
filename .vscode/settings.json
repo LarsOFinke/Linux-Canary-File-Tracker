@@ -1,0 +1,6 @@
+{
+    "cmake.sourceDirectory": "/home/lars/Repositories/fs-tracker-source/fs-tracker",
+    "chat.tools.terminal.autoApprove": {
+        "make": true
+    }
+}
