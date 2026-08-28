@@ -41,6 +41,32 @@ printf 'Executable action file [none]: '
 IFS= read -r input
 [ -n "$input" ] && ACTION_PATH=$input
 
+MAIL_TO=
+MAIL_FROM=
+MAIL_SUBJECT=
+if [ -n "$ACTION_PATH" ]; then
+    ACTION_NAME=$(basename -- "$ACTION_PATH")
+    if [ "$ACTION_NAME" = "canary-mail-send.sh" ] || [ "$ACTION_NAME" = "canary-mail-send" ]; then
+        printf 'Mail recipient (required): '
+        IFS= read -r input
+        MAIL_TO=$input
+        if [ -z "$MAIL_TO" ]; then
+            fail "mail action requires a recipient address"
+        fi
+
+        HOSTNAME_SHORT=$(hostname 2>/dev/null || printf 'localhost')
+        printf 'Mail sender [%s]: ' "fs-tracker@$HOSTNAME_SHORT"
+        IFS= read -r input
+        [ -n "$input" ] && MAIL_FROM=$input
+        MAIL_FROM=${MAIL_FROM:-"fs-tracker@$HOSTNAME_SHORT"}
+
+        printf 'Mail subject [fs-tracker alert]: '
+        IFS= read -r input
+        [ -n "$input" ] && MAIL_SUBJECT=$input
+        MAIL_SUBJECT=${MAIL_SUBJECT:-fs-tracker alert}
+    fi
+fi
+
 case "$TARGET_PATH:$LOG_PATH:$ACTION_PATH" in
     /*:/*:) ;;
     /*:/*:/*) [ -x "$ACTION_PATH" ] || fail "action file must be executable" ;;
@@ -98,6 +124,20 @@ After=local-fs.target
 Type=simple
 ExecStart=$PREFIX/bin/fs-tracker --config $CONFIG_FILE
 Restart=on-failure
+EOF
+
+if [ -n "$MAIL_TO" ]; then
+    cat >> "$SERVICE_FILE" <<EOF
+Environment="FS_TRACKER_MAIL_TO=$MAIL_TO"
+Environment="MAIL_TO=$MAIL_TO"
+Environment="FS_TRACKER_MAIL_FROM=$MAIL_FROM"
+Environment="MAIL_FROM=$MAIL_FROM"
+Environment="FS_TRACKER_MAIL_SUBJECT=$MAIL_SUBJECT"
+Environment="MAIL_SUBJECT=$MAIL_SUBJECT"
+EOF
+fi
+
+cat >> "$SERVICE_FILE" <<EOF
 
 [Install]
 WantedBy=multi-user.target

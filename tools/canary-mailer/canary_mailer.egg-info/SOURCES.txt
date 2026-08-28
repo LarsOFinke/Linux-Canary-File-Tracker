@@ -1,0 +1,8 @@
+README.md
+app.py
+pyproject.toml
+canary_mailer.egg-info/PKG-INFO
+canary_mailer.egg-info/SOURCES.txt
+canary_mailer.egg-info/dependency_links.txt
+canary_mailer.egg-info/entry_points.txt
+canary_mailer.egg-info/top_level.txt

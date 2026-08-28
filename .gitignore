@@ -18,6 +18,11 @@ compile_commands.json
 # Runtime data
 *.jsonl
 
+# Python virtual environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+
 # Local and OS metadata
 .DS_Store
 *~

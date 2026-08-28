@@ -84,3 +84,29 @@ Environment="FS_TRACKER_POST_TIMEOUT=10"
 
 The action requires `curl`. The default timeout is 10 seconds; a failed POST
 is reported by `fs-tracker` and does not stop event monitoring.
+
+## Mail action
+
+The repository also includes `tools/canary-mail-send.sh`. It sends the event as
+an email notification using the local mail transport. Configure it by setting
+`FS_TRACKER_MAIL_TO` or `MAIL_TO` in the service environment, and optionally
+`FS_TRACKER_MAIL_FROM`, `FS_TRACKER_MAIL_SUBJECT`, `MAIL_FROM`, or
+`MAIL_SUBJECT`.
+
+For a generated canary unit, add an environment override and restart that
+canary:
+
+```bash
+sudo systemctl edit fs-file-monitor-finance.service
+```
+
+```ini
+[Service]
+Environment="FS_TRACKER_MAIL_TO=ops@example.com"
+Environment="FS_TRACKER_MAIL_FROM=fs-tracker@host.example"
+Environment="FS_TRACKER_MAIL_SUBJECT=fs-tracker alert"
+```
+
+The script prefers `sendmail` when available and falls back to `mail` if it is
+not installed. It reads from the process environment, so systemd service
+configuration is the intended setup path.
