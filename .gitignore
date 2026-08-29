@@ -7,7 +7,6 @@
 *.so
 dist/
 fs-tracker
-canary-mailer.spec
 
 # CMake outputs
 build/
