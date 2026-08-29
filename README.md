@@ -59,6 +59,7 @@ This keeps the design KISS while applying the useful parts of SOLID in C:
 
 ```bash
 make
+make mailer
 make test
 ```
 
@@ -70,9 +71,26 @@ cmake --build build
 ctest --test-dir build
 ```
 
-The Make build produces one runnable distribution file: `dist/fs-tracker`.
-`make test` keeps its test binaries in a temporary directory and removes them
-afterward. Only this executable is needed to run the tracker.
+The Make build produces one runnable distribution file for the tracker and a
+frozen single-file action binary for the mailer:
+
+- `dist/fs-tracker`
+- `dist/canary-mailer`
+
+The mailer is intended to be used as a `TRACK_ACTION` executable, which makes
+it easy to drop into the event call chain without carrying a Python runtime or
+module import path around on the target host. The interactive installer can also
+bundle and deploy that frozen binary automatically, including the required
+mail environment variables for the canary service.
+
+To remove a canary install completely, use the matching uninstall script:
+
+```bash
+sudo scripts/uninstall-fs-tracker.sh
+```
+
+`make test` keeps its C test binaries in a temporary directory and removes them
+afterward, then runs the mailer unit tests in the project virtual environment.
 
 ## Install as a service
 

@@ -44,27 +44,39 @@ IFS= read -r input
 MAIL_TO=
 MAIL_FROM=
 MAIL_SUBJECT=
+if [ -z "$ACTION_PATH" ]; then
+    printf 'Install bundled canary-mailer action [y/N]: '
+    IFS= read -r answer
+    case "$answer" in
+        y|Y|yes|YES)
+            ACTION_PATH="$PREFIX/libexec/fs-tracker/canary-mailer"
+            ;;
+    esac
+fi
+
 if [ -n "$ACTION_PATH" ]; then
     ACTION_NAME=$(basename -- "$ACTION_PATH")
-    if [ "$ACTION_NAME" = "canary-mail-send.sh" ] || [ "$ACTION_NAME" = "canary-mail-send" ]; then
-        printf 'Mail recipient (required): '
-        IFS= read -r input
-        MAIL_TO=$input
-        if [ -z "$MAIL_TO" ]; then
-            fail "mail action requires a recipient address"
-        fi
+    case "$ACTION_NAME" in
+        canary-mail-send.sh|canary-mail-send|canary-mailer)
+            printf 'Mail recipient (required): '
+            IFS= read -r input
+            MAIL_TO=$input
+            if [ -z "$MAIL_TO" ]; then
+                fail "mail action requires a recipient address"
+            fi
 
-        HOSTNAME_SHORT=$(hostname 2>/dev/null || printf 'localhost')
-        printf 'Mail sender [%s]: ' "fs-tracker@$HOSTNAME_SHORT"
-        IFS= read -r input
-        [ -n "$input" ] && MAIL_FROM=$input
-        MAIL_FROM=${MAIL_FROM:-"fs-tracker@$HOSTNAME_SHORT"}
+            HOSTNAME_SHORT=$(hostname 2>/dev/null || printf 'localhost')
+            printf 'Mail sender [%s]: ' "fs-tracker@$HOSTNAME_SHORT"
+            IFS= read -r input
+            [ -n "$input" ] && MAIL_FROM=$input
+            MAIL_FROM=${MAIL_FROM:-"fs-tracker@$HOSTNAME_SHORT"}
 
-        printf 'Mail subject [fs-tracker alert]: '
-        IFS= read -r input
-        [ -n "$input" ] && MAIL_SUBJECT=$input
-        MAIL_SUBJECT=${MAIL_SUBJECT:-fs-tracker alert}
-    fi
+            printf 'Mail subject [fs-tracker alert]: '
+            IFS= read -r input
+            [ -n "$input" ] && MAIL_SUBJECT=$input
+            MAIL_SUBJECT=${MAIL_SUBJECT:-fs-tracker alert}
+            ;;
+    esac
 fi
 
 case "$TARGET_PATH:$LOG_PATH:$ACTION_PATH" in
@@ -86,6 +98,9 @@ esac
 
 PROJECT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 BINARY="$PROJECT_DIR/dist/fs-tracker"
+MAILER_BINARY="$PROJECT_DIR/dist/canary-mailer"
+MAILER_INSTALL_DIR="$PREFIX/libexec/fs-tracker"
+MAILER_INSTALL_PATH="$MAILER_INSTALL_DIR/canary-mailer"
 
 printf 'Building fs-tracker...\n'
 make -C "$PROJECT_DIR" test
@@ -94,6 +109,14 @@ make -C "$PROJECT_DIR"
 
 install -d -m 0755 "$PREFIX/bin"
 install -m 0755 "$BINARY" "$PREFIX/bin/fs-tracker"
+
+if [ -n "$ACTION_PATH" ] && [ "$ACTION_PATH" = "$MAILER_INSTALL_PATH" ]; then
+    make -C "$PROJECT_DIR" mailer
+    [ -x "$MAILER_BINARY" ] || fail "build did not produce $MAILER_BINARY"
+    install -d -m 0755 "$MAILER_INSTALL_DIR"
+    install -m 0755 "$MAILER_BINARY" "$MAILER_INSTALL_PATH"
+    ACTION_PATH=$MAILER_INSTALL_PATH
+fi
 
 TARGET_DIR=$(dirname -- "$TARGET_PATH")
 LOG_DIR=$(dirname -- "$LOG_PATH")

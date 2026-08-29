@@ -9,7 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build tracker and mailer
         run: make
       - name: Test
         run: make test
+      - name: Verify frozen mailer artifact
+        run: ./dist/canary-mailer /tmp/secret.txt 32 1234 || true

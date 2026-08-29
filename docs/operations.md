@@ -75,6 +75,13 @@ To stop and disable the service while retaining its generated unit file:
 sudo scripts/deactivate-fs-tracker.sh
 ```
 
+To completely remove a canary installation, including the unit, config, registry
+entry, and bundled action binary:
+
+```bash
+sudo scripts/uninstall-fs-tracker.sh
+```
+
 Deactivation prompts for the canary name and retains its systemd unit,
 `/usr/local/bin/fs-tracker`, `/etc/fs-tracker/<name>.conf`, watched target, and
 JSONL log. Enable and start the selected service again with:

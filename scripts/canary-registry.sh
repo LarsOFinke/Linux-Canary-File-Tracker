@@ -92,3 +92,24 @@ registry_add() {
     printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$CANARY_NAME" "$SERVICE_NAME" "$CONFIG_FILE" "$TARGET_PATH" "$LOG_PATH" "$ACTION_PATH" >> "$REGISTRY_FILE"
     chmod 0644 "$REGISTRY_FILE"
 }
+
+registry_remove() {
+    [ -r "$REGISTRY_FILE" ] || return 0
+    tmp_file=$(mktemp)
+    trap 'rm -f "$tmp_file"' EXIT INT TERM
+    while IFS="$TAB" read -r name service config target log action || [ -n "$name" ]; do
+        case "$name" in
+            ''|'#'*)
+                printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$service" "$config" "$target" "$log" "$action" >> "$tmp_file"
+                ;;
+            *)
+                if [ "$name" != "$CANARY_NAME" ]; then
+                    printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$service" "$config" "$target" "$log" "$action" >> "$tmp_file"
+                fi
+                ;;
+        esac
+    done < "$REGISTRY_FILE"
+    mv "$tmp_file" "$REGISTRY_FILE"
+    trap - EXIT INT TERM
+    chmod 0644 "$REGISTRY_FILE"
+}
