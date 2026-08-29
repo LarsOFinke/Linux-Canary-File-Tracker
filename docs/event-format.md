@@ -44,7 +44,7 @@ The sensor can emit:
 ## Example
 
 ```json
-{"ts":"2026-08-28T10:21:43.918223411Z","path":"/tmp/secret.txt","mask":32,"events":["open"],"process":{"pid":18442,"ppid":17201,"uid":1000,"exe":"/usr/bin/cat","cmdline":"cat /tmp/secret.txt"},"parent":{"pid":17201,"ppid":17198,"uid":1000,"exe":"/usr/bin/bash","cmdline":"bash"}}
+{"ts":"2026-08-28T10:21:43.918223411Z","path":"/srv/honey/.ssh/id_ed25519","mask":32,"events":["open"],"process":{"pid":18442,"ppid":17201,"uid":1000,"exe":"/usr/bin/cat","cmdline":"cat /srv/honey/.ssh/id_ed25519"},"parent":{"pid":17201,"ppid":17198,"uid":1000,"exe":"/usr/bin/bash","cmdline":"bash"}}
 ```
 
 Consumers should tolerate additional fields and event names in future

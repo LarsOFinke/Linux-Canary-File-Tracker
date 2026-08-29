@@ -1,4 +1,4 @@
-# fs-tracker
+# linux-canary-file-tracker
 
 A small Linux file-activity sensor built on `fanotify`.
 
@@ -149,24 +149,31 @@ journalctl -u fs-file-monitor-finance.service -f
 
 ## Quick start
 
-Create a target (the watched file must exist when the tracker starts):
+Create a target file that looks like a private SSH key (the watched file must exist when the tracker starts):
 
 ```bash
-echo 'super secret' > /tmp/secret.txt
+mkdir -p /srv/honey/.ssh
+cat > /srv/honey/.ssh/id_ed25519 <<'EOF'
+-----BEGIN OPENSSH PRIVATE KEY-----
+MC4CAQAwBQYDK2VwBCIEIBw5FJ1nWQm3C0hA+uI8v2mP1eOUb6j4i+J5nE8S8n0s
+YHnj+R1fH2Ew5iE4m6m7gA0o7KfX9fFZK2kcG+00r9fT9UC3JzQq86naV8Q==
+-----END OPENSSH PRIVATE KEY-----
+EOF
+chmod 0600 /srv/honey/.ssh/id_ed25519
 ```
 
 Run the tracker:
 
 ```bash
 sudo ./dist/fs-tracker \
-  --path /tmp/secret.txt \
+  --path /srv/honey/.ssh/id_ed25519 \
   --log /tmp/fs-events.jsonl
 ```
 
 In another terminal:
 
 ```bash
-cat /tmp/secret.txt
+cat /srv/honey/.ssh/id_ed25519
 ```
 
 Then inspect the log:
@@ -178,7 +185,7 @@ cat /tmp/fs-events.jsonl
 Example record:
 
 ```json
-{"ts":"2026-08-28T10:21:43.918223411Z","path":"/tmp/secret.txt","mask":32,"events":["open"],"process":{"pid":18442,"ppid":17201,"uid":1000,"exe":"/usr/bin/cat","cmdline":"cat /tmp/secret.txt"},"parent":{"pid":17201,"ppid":17198,"uid":1000,"exe":"/usr/bin/bash","cmdline":"bash"}}
+{"ts":"2026-08-28T10:21:43.918223411Z","path":"/srv/honey/.ssh/id_ed25519","mask":32,"events":["open"],"process":{"pid":18442,"ppid":17201,"uid":1000,"exe":"/usr/bin/cat","cmdline":"cat /srv/honey/.ssh/id_ed25519"},"parent":{"pid":17201,"ppid":17198,"uid":1000,"exe":"/usr/bin/bash","cmdline":"bash"}}
 ```
 
 ## Configuration
@@ -186,7 +193,7 @@ Example record:
 Defaults:
 
 ```text
-TRACK_PATH=/tmp/secret.txt
+TRACK_PATH=/srv/honey/.ssh/id_ed25519
 TRACK_LOG=./fs-events.jsonl
 ```
 
@@ -194,7 +201,7 @@ Environment variables:
 
 ```bash
 sudo env \
-  TRACK_PATH=/srv/honey/credentials.txt \
+  TRACK_PATH=/srv/honey/.ssh/id_ed25519 \
   TRACK_LOG=/var/log/fs-tracker/events.jsonl \
   ./dist/fs-tracker
 ```
@@ -208,7 +215,7 @@ sudo ./dist/fs-tracker --config packaging/fs-tracker.conf
 Config syntax is intentionally just:
 
 ```text
-TRACK_PATH=/tmp/secret.txt
+TRACK_PATH=/srv/honey/.ssh/id_ed25519
 TRACK_LOG=/tmp/fs-events.jsonl
 ```
 
@@ -217,7 +224,7 @@ CLI options may override values loaded earlier:
 ```bash
 sudo ./dist/fs-tracker \
   --config packaging/fs-tracker.conf \
-  --path /srv/honey/credentials.txt
+  --path /srv/honey/.ssh/id_ed25519
 ```
 
 The precedence is deterministic: defaults < config file < environment < CLI overrides.

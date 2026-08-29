@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "canary-mailer"
+name = "linux-canary-file-tracker"
 version = "0.1.0"
-description = "SMTP mailer used by Linux Canary File Tracker actions"
+description = "Linux Canary File Tracker project metadata and mailer companion package"
 requires-python = ">=3.10"
 dependencies = []
 

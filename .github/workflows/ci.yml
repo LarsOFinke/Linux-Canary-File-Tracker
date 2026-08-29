@@ -5,7 +5,8 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
+  linux-canary-file-tracker:
+    name: linux-canary-file-tracker
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -6,9 +6,21 @@ CONFIG_DIR=${CONFIG_DIR:-/etc/fs-tracker}
 SERVICE_DIR=${SERVICE_DIR:-/etc/systemd/system}
 REGISTRY_FILE=${REGISTRY_FILE:-$CONFIG_DIR/canaries}
 CANARY_NAME=${CANARY_NAME:-default}
-TARGET_PATH=/srv/honey/credentials.txt
+TARGET_PATH=/srv/honey/.ssh/id_ed25519
 LOG_PATH=/var/log/fs-tracker/events.jsonl
 ACTION_PATH=
+
+write_fake_ssh_private_key() {
+    mkdir -p "$(dirname -- "$TARGET_PATH")"
+    cat > "$TARGET_PATH" <<'EOF'
+-----BEGIN OPENSSH PRIVATE KEY-----
+MC4CAQAwBQYDK2VwBCIEIC7uP5hP4T1Gf0fLzsV0qJxk3p7Vx6JtL5u64W0NQ8
+PnD4Vj2Q2um8iVY9iJDAR7NOp2R6u0X2Wc6zNzE5wT0mH7jTn0QJdDzi2gJH8gH0h
+LJ2K9wA8Sos0YisjPo4b+9VQnSmvPbcLMn9vwbRr9iK0vPq7N0lqP0bDx8w==
+-----END OPENSSH PRIVATE KEY-----
+EOF
+    chmod 0600 "$TARGET_PATH"
+}
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/canary-registry.sh"
@@ -125,7 +137,7 @@ install -d -m 0750 "$TARGET_DIR"
 install -d -m 0750 "$LOG_DIR"
 
 if [ ! -e "$TARGET_PATH" ]; then
-    install -m 0640 /dev/null "$TARGET_PATH"
+    write_fake_ssh_private_key
 fi
 
 cat > "$CONFIG_FILE" <<EOF

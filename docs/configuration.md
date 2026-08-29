@@ -14,7 +14,7 @@ and action for each installation.
 
 | Setting | Default | Description |
 | --- | --- | --- |
-| `TRACK_PATH` | `/tmp/secret.txt` | File to mark and monitor. It must exist when the process starts. |
+| `TRACK_PATH` | `/srv/honey/.ssh/id_ed25519` | File to mark and monitor. It should resemble an SSH private key to attract attacker attention. |
 | `TRACK_LOG` | `./fs-events.jsonl` | JSONL file to append events to. |
 | `TRACK_ACTION` | unset | Optional executable to run after an event is logged. |
 
@@ -22,7 +22,7 @@ Settings can be supplied through a config file containing simple `KEY=VALUE`
 lines:
 
 ```text
-TRACK_PATH=/srv/honey/credentials.txt
+TRACK_PATH=/srv/honey/.ssh/id_ed25519
 TRACK_LOG=/var/log/fs-tracker/events.jsonl
 TRACK_ACTION=/usr/local/libexec/fs-tracker-action
 ```
@@ -50,7 +50,7 @@ the watched file:
 ```bash
 sudo ./dist/fs-tracker \
   --config packaging/fs-tracker.conf \
-  --path /srv/honey/credentials.txt
+  --path /srv/honey/.ssh/id_ed25519
 ```
 
 ## Command-line options

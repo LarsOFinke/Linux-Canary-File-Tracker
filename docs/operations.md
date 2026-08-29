@@ -27,9 +27,10 @@ those are build internals and are not needed at runtime.
 The watched file must exist before startup:
 
 ```bash
-install -m 0600 /dev/null /tmp/secret.txt
+mkdir -p /srv/honey/.ssh
+install -m 0600 /dev/null /srv/honey/.ssh/id_ed25519
 sudo ./dist/fs-tracker \
-  --path /tmp/secret.txt \
+  --path /srv/honey/.ssh/id_ed25519 \
   --log /tmp/fs-events.jsonl
 ```
 
@@ -37,7 +38,7 @@ The program prints its tracking pair to stderr. Generate a test event from a
 second terminal, then inspect the JSONL output:
 
 ```bash
-cat /tmp/secret.txt
+cat /srv/honey/.ssh/id_ed25519
 tail -n 1 /tmp/fs-events.jsonl
 ```
 

@@ -39,10 +39,17 @@ The project is intentionally simple and is not a full security boundary. It is i
 
 The repository is designed around the interactive installer for real deployments. That process prompts for the canary name, target file, log path, and optional action script, rather than requiring a long command line.
 
-Create a target file:
+Create a target file that looks like a private SSH key:
 
 ```bash
-echo 'super secret' > /tmp/secret.txt
+mkdir -p /srv/honey/.ssh
+cat > /srv/honey/.ssh/id_ed25519 <<'EOF'
+-----BEGIN OPENSSH PRIVATE KEY-----
+MC4CAQAwBQYDK2VwBCIEIBw5FJ1nWQm3C0hA+uI8v2mP1eOUb6j4i+J5nE8S8n0s
+YHnj+R1fH2Ew5iE4m6m7gA0o7KfX9fFZK2kcG+00r9fT9UC3JzQq86naV8Q==
+-----END OPENSSH PRIVATE KEY-----
+EOF
+chmod 0600 /srv/honey/.ssh/id_ed25519
 ```
 
 Install and start the service interactively:
@@ -55,14 +62,14 @@ If you are testing the binary directly without the installer, use a manual overr
 
 ```bash
 sudo ./dist/fs-tracker \
-  --path /tmp/secret.txt \
+  --path /srv/honey/.ssh/id_ed25519 \
   --log /tmp/fs-events.jsonl
 ```
 
 In another terminal, trigger an event:
 
 ```bash
-cat /tmp/secret.txt
+cat /srv/honey/.ssh/id_ed25519
 ```
 
 Read the JSONL output:
@@ -74,7 +81,7 @@ cat /tmp/fs-events.jsonl
 Example record:
 
 ```json
-{"ts":"2026-08-28T10:21:43.918223411Z","path":"/tmp/secret.txt","mask":32,"events":["open"],"process":{"pid":18442,"ppid":17201,"uid":1000,"exe":"/usr/bin/cat","cmdline":"cat /tmp/secret.txt"},"parent":{"pid":17201,"ppid":17198,"uid":1000,"exe":"/usr/bin/bash","cmdline":"bash"}}
+{"ts":"2026-08-28T10:21:43.918223411Z","path":"/srv/honey/.ssh/id_ed25519","mask":32,"events":["open"],"process":{"pid":18442,"ppid":17201,"uid":1000,"exe":"/usr/bin/cat","cmdline":"cat /srv/honey/.ssh/id_ed25519"},"parent":{"pid":17201,"ppid":17198,"uid":1000,"exe":"/usr/bin/bash","cmdline":"bash"}}
 ```
 
 ## Configuration
@@ -91,7 +98,7 @@ The tracker supports three configuration inputs, with a clear precedence order:
 The default settings are:
 
 ```text
-TRACK_PATH=/tmp/secret.txt
+TRACK_PATH=/srv/honey/.ssh/id_ed25519
 TRACK_LOG=./fs-events.jsonl
 ```
 
@@ -100,7 +107,7 @@ TRACK_LOG=./fs-events.jsonl
 A simple configuration file looks like this:
 
 ```text
-TRACK_PATH=/srv/honey/credentials.txt
+TRACK_PATH=/srv/honey/.ssh/id_ed25519
 TRACK_LOG=/var/log/fs-tracker/events.jsonl
 ```
 
@@ -114,7 +121,7 @@ sudo ./dist/fs-tracker --config packaging/fs-tracker.conf
 
 ```bash
 sudo env \
-  TRACK_PATH=/srv/honey/credentials.txt \
+  TRACK_PATH=/srv/honey/.ssh/id_ed25519 \
   TRACK_LOG=/var/log/fs-tracker/events.jsonl \
   ./dist/fs-tracker
 ```
@@ -124,7 +131,7 @@ sudo env \
 ```bash
 sudo ./dist/fs-tracker \
   --config packaging/fs-tracker.conf \
-  --path /srv/honey/credentials.txt
+  --path /srv/honey/.ssh/id_ed25519
 ```
 
 The full command-line options are:
@@ -207,7 +214,7 @@ Manual override example:
 
 ```bash
 sudo ./dist/fs-tracker \
-  --path /tmp/secret.txt \
+  --path /srv/honey/.ssh/id_ed25519 \
   --log /tmp/fs-events.jsonl
 ```
 
