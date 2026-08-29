@@ -19,4 +19,4 @@ jobs:
       - name: Test
         run: make test
       - name: Verify frozen mailer artifact
-        run: ./dist/canary-mailer /tmp/secret.txt 32 1234 || true
+        run: ./dist/canary-mailer/canary-mailer /tmp/secret.txt 32 1234 || true
