@@ -33,6 +33,19 @@ if [ -n "$LOG_PATH" ] && [ -e "$LOG_PATH" ]; then
     rm -f "$LOG_PATH"
 fi
 
+if [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR" ]; then
+    printf 'Delete generated canary project at %s? [y/N]: ' "$PROJECT_DIR"
+    IFS= read -r answer
+    case "$answer" in
+        y|Y|yes|YES)
+            rm -rf "$PROJECT_DIR"
+            ;;
+        *)
+            printf 'Leaving canary project directory in place: %s\n' "$PROJECT_DIR"
+            ;;
+    esac
+fi
+
 if [ -n "$CONFIG_FILE" ]; then
     registry_remove
 fi

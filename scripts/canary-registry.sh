@@ -42,7 +42,7 @@ prompt_registered_canary_name() {
 
     count=0
     printf 'Registered canaries:\n'
-    while IFS="$TAB" read -r name service config target log action || [ -n "$name" ]; do
+    while IFS="$TAB" read -r name service config target log action project_dir || [ -n "$name" ]; do
         case "$name" in
             ''|'#'*) continue ;;
         esac
@@ -59,7 +59,7 @@ prompt_registered_canary_name() {
     [ "$selection" -ge 1 ] 2>/dev/null && [ "$selection" -le "$count" ] || fail "selection is outside the registered canary list"
 
     count=0
-    while IFS="$TAB" read -r name service config target log action || [ -n "$name" ]; do
+    while IFS="$TAB" read -r name service config target log action project_dir || [ -n "$name" ]; do
         case "$name" in
             ''|'#'*) continue ;;
         esac
@@ -71,6 +71,7 @@ prompt_registered_canary_name() {
             TARGET_PATH=$target
             LOG_PATH=$log
             ACTION_PATH=$action
+            PROJECT_DIR=${project_dir:-}
             return 0
         fi
     done < "$REGISTRY_FILE"
@@ -80,7 +81,7 @@ prompt_registered_canary_name() {
 
 registry_contains() {
     registry_name=$1
-    while IFS="$TAB" read -r name service config target log action || [ -n "$name" ]; do
+    while IFS="$TAB" read -r name service config target log action project_dir || [ -n "$name" ]; do
         [ "$name" = "$registry_name" ] && return 0
     done < "$REGISTRY_FILE"
     return 1
@@ -89,7 +90,7 @@ registry_contains() {
 registry_add() {
     install -d -m 0750 "$(dirname -- "$REGISTRY_FILE")"
     umask 022
-    printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$CANARY_NAME" "$SERVICE_NAME" "$CONFIG_FILE" "$TARGET_PATH" "$LOG_PATH" "$ACTION_PATH" >> "$REGISTRY_FILE"
+    printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$CANARY_NAME" "$SERVICE_NAME" "$CONFIG_FILE" "$TARGET_PATH" "$LOG_PATH" "$ACTION_PATH" "${PROJECT_DIR:-}" >> "$REGISTRY_FILE"
     chmod 0644 "$REGISTRY_FILE"
 }
 
@@ -97,14 +98,14 @@ registry_remove() {
     [ -r "$REGISTRY_FILE" ] || return 0
     tmp_file=$(mktemp)
     trap 'rm -f "$tmp_file"' EXIT INT TERM
-    while IFS="$TAB" read -r name service config target log action || [ -n "$name" ]; do
+    while IFS="$TAB" read -r name service config target log action project_dir || [ -n "$name" ]; do
         case "$name" in
             ''|'#'*)
-                printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$service" "$config" "$target" "$log" "$action" >> "$tmp_file"
+                printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$service" "$config" "$target" "$log" "$action" "$project_dir" >> "$tmp_file"
                 ;;
             *)
                 if [ "$name" != "$CANARY_NAME" ]; then
-                    printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$service" "$config" "$target" "$log" "$action" >> "$tmp_file"
+                    printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$service" "$config" "$target" "$log" "$action" "$project_dir" >> "$tmp_file"
                 fi
                 ;;
         esac

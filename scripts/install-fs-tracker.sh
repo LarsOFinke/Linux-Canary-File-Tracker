@@ -66,6 +66,32 @@ if [ -z "$ACTION_PATH" ]; then
     esac
 fi
 
+PROJECT_ROOT=${PROJECT_ROOT:-/srv/canary-projects}
+PROJECT_DIR=
+printf 'Generate a passive canary project too? [y/N]: '
+IFS= read -r answer
+case "$answer" in
+    y|Y|yes|YES)
+        printf 'Project parent directory [%s]: ' "$PROJECT_ROOT"
+        IFS= read -r input
+        [ -n "$input" ] && PROJECT_ROOT=$input
+        printf 'Project profile [standard/high-noise/stealth] [standard]: '
+        IFS= read -r project_mode
+        project_mode=${project_mode:-standard}
+        case "$project_mode" in
+            standard|high-noise|stealth) ;;
+            *) fail "project profile must be one of: standard, high-noise, stealth" ;;
+        esac
+        install -d -m 0755 "$PROJECT_ROOT"
+        PROJECT_DIR="$PROJECT_ROOT/$CANARY_NAME"
+        printf 'Generating canary project in %s ...\n' "$PROJECT_DIR"
+        PYTHONPATH="$PROJECT_DIR/..:$PROJECT_DIR:$PROJECT_DIR/../.." python3 -m tools.canary_project --project-name "$CANARY_NAME" --output-dir "$PROJECT_ROOT" --mode "$project_mode" >/tmp/canary-project-generation.log 2>&1 || {
+            cat /tmp/canary-project-generation.log >&2
+            fail "canary project generation failed"
+        }
+        ;;
+esac
+
 if [ -n "$ACTION_PATH" ]; then
     ACTION_NAME=$(basename -- "$ACTION_PATH")
     case "$ACTION_NAME" in
@@ -187,5 +213,9 @@ printf '\nfs-tracker is active.\n'
 printf 'Service: %s\n' "$SERVICE_NAME"
 printf 'Target: %s\n' "$TARGET_PATH"
 printf 'Log:    %s\n' "$LOG_PATH"
+if [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR" ]; then
+    printf 'Project: %s\n' "$PROJECT_DIR"
+    printf 'Project status: interactive scan targets are available under %s\n' "$PROJECT_DIR"
+fi
 printf 'Status: systemctl status %s\n' "$SERVICE_NAME"
 printf 'Events: journalctl -u %s -f\n' "$SERVICE_NAME"
