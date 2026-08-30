@@ -129,6 +129,20 @@ configuration, target, and event log:
 sudo scripts/deactivate-fs-tracker.sh
 ```
 
+## Canary project generator
+
+This repo also includes a small generator for a realistic but passive canary web
+application that mimics common exposed targets such as `/api/.env`,
+`/config/app.env`, `/public/index.php`, and `/wp-config.php`.
+
+```bash
+python3 -m tools.canary_project --project-name demo-site --output-dir /tmp --mode standard
+```
+
+The generated project records request metadata automatically in a local log file,
+without active exfiltration or user interaction. It is intended for defensive
+monitoring, realistic scan telemetry, and detection exercises.
+
 To enable and start it again:
 
 ```bash
